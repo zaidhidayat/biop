@@ -1,1 +1,956 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catatan Keuangan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
 
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.4;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-section,
+        .table-section {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .form-header,
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        .saldo-info {
+            font-size: 16px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .saldo-negatif {
+            color: #e74c3c;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: bold;
+            color: #444;
+            font-size: 12px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #4a6491;
+            outline: none;
+        }
+
+        /* Keterangan: label di kiri, input di kanan */
+        .description-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .description-group label {
+            margin-bottom: 0;
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .description-group input {
+            flex: 1;
+        }
+
+        /* Tanggal: label di kiri, input di kanan */
+        .date-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-group label {
+            margin-bottom: 0;
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .date-group input {
+            flex: 1;
+        }
+
+        .transaction-type {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .type-option {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .type-option.active[data-type="masuk"] {
+            background-color: #27ae60;
+            color: #fff;
+            border-color: #27ae60;
+        }
+
+        .type-option.active[data-type="keluar"] {
+            background-color: #e74c3c;
+            color: #fff;
+            border-color: #e74c3c;
+        }
+
+        .amount-input-container {
+            position: relative;
+        }
+
+        .amount-input-container::before {
+            content: "Rp ";
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+            color: #666;
+        }
+
+        #amount {
+            padding-left: 35px;
+        }
+
+        .button-row-simpan {
+            margin-top: 15px;
+        }
+
+        .button-row-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            background-color: #2c3e50;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #1a252f;
+        }
+
+        .btn-simpan {
+            background-color: #27ae60;
+            height: 50px;
+            padding: 10 15px;
+            line-height: 20px;
+        }
+
+        .btn-simpan:hover {
+            background-color: #219653;
+        }
+
+        .btn-screenshot {
+            background-color: #3498db;
+            flex: 1;
+        }
+
+        .btn-screenshot:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-refresh {
+            background-color: #95a5a6;
+            flex: 0 0 50px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .btn-refresh:hover {
+            background-color: #7f8c8d;
+        }
+
+        .table-section {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            min-width: 400px;
+        }
+
+        th,
+        td {
+            padding: 5px 4px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .tgl-col {
+            width: 50px;
+        }
+
+        .keterangan-col {
+            text-align: left;
+            min-width: 120px;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .number-col {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            white-space: nowrap;
+            min-width: 70px;
+        }
+
+        .masuk-col {
+            color: #27ae60;
+        }
+
+        .keluar-col {
+            color: #e74c3c;
+        }
+
+        .saldo-col {
+            color: #2c3e50;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .table-summary {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background-color: #27ae60;
+            color: #fff;
+            padding: 12px 15px;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .notification.error {
+            background-color: #e74c3c;
+        }
+
+        .status-info {
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            color: #7f8c8d;
+            font-size: 11px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                font-size: 13px;
+            }
+
+            table {
+                font-size: 10px;
+                min-width: 100%;
+            }
+
+            th,
+            td {
+                padding: 4px 3px;
+                font-size: 10px;
+            }
+
+            .btn {
+                padding: 9px 12px;
+                font-size: 13px;
+            }
+
+            .type-option {
+                padding: 8px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            table {
+                font-size: 9px;
+            }
+
+            th,
+            td {
+                padding: 3px 2px;
+                font-size: 9px;
+            }
+
+            .keterangan-col {
+                min-width: 90px;
+                max-width: 110px;
+            }
+
+            .number-col {
+                min-width: 55px;
+                max-width: 65px;
+            }
+        }
+    </style>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <section class="form-section">
+        <div class="form-header">
+            <h2>Tambah Transaksi</h2>
+            <div id="saldoDisplay" class="saldo-info">Saldo: 0</div>
+        </div>
+
+        <form id="transactionForm">
+            <div class="form-row">
+                <div class="form-group date-group">
+                    <label for="date">Tanggal</label>
+                    <input type="date" id="date" required>
+                </div>
+
+                <div class="form-group description-group">
+                    <label for="description">Keterangan</label>
+                    <input type="text" id="description" placeholder="Masukkan keterangan" required>
+                </div>
+            </div>
+
+            <div class="transaction-type">
+                <div class="type-option active" data-type="masuk" id="masukOption">Masuk</div>
+                <div class="type-option" data-type="keluar" id="keluarOption">Keluar</div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <div class="amount-input-container">
+                        <!-- text supaya bisa ada titik ribuan -->
+                        <input type="text" id="amount" placeholder="0" required inputmode="numeric" pattern="[0-9]*">
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-row-simpan">
+                <button type="submit" class="btn btn-simpan">Simpan</button>
+            </div>
+
+            <div class="button-row-actions">
+                <button type="button" id="screenshotBtn" class="btn btn-screenshot">Screenshot</button>
+                <button type="button" id="refreshBtn" class="btn btn-refresh">🔄</button>
+            </div>
+
+            <div id="statusInfo" class="status-info">
+                Data disimpan di localStorage &amp; keuangan.csv (GitHub). Auto sync saat halaman dibuka.
+            </div>
+        </form>
+    </section>
+
+    <section class="table-section">
+        <div class="table-header">
+            <h2>Biop PJ Batur</h2>
+            <!-- format: Rabu, 03/12/2025, Saldo : 1.600.000 -->
+            <div id="tableSummary" class="table-summary">-, Saldo : 0</div>
+        </div>
+
+        <table id="transactionTable">
+            <thead>
+            <tr>
+                <th class="tgl-col">TGL</th>
+                <th class="keterangan-col">KETERANGAN</th>
+                <th class="number-col">MASUK</th>
+                <th class="number-col">KELUAR</th>
+                <th class="number-col">SALDO</th>
+            </tr>
+            </thead>
+            <tbody id="transactionBody"></tbody>
+        </table>
+
+        <div id="emptyMessage"
+             style="text-align:center;padding:30px;color:#7f8c8d;font-style:italic;display:none;font-size:13px;">
+            Belum ada transaksi. Tambahkan transaksi pertama Anda!
+        </div>
+    </section>
+
+    <footer>
+        <p>Catatan Keuangan Sederhana &copy; 2023 | Data disimpan di localStorage &amp; GitHub</p>
+    </footer>
+</div>
+
+<div id="notification" class="notification">
+    <span id="notificationText">Notifikasi</span>
+</div>
+
+<script>
+    /***********************
+     *  KONFIGURASI GITHUB *
+     ***********************/
+    // TODO: GANTI INI SESUAI REPO KAMU
+    const GITHUB_OWNER  = 'USERNAME_ANDA';      // contoh: 'budi123'
+    const GITHUB_REPO   = 'NAMA_REPO_ANDA';     // contoh: 'catatan-keuangan'
+    const GITHUB_BRANCH = 'main';               // atau 'master' sesuai repo
+    const GITHUB_FILE_PATH = 'keuangan.csv';    // karena 1 folder dengan index.html
+
+    // PERINGATAN:
+    // Jangan taruh token PAT di repo publik.
+    // Kalau ini hanya dipakai pribadi, jadikan repo private.
+    const GITHUB_TOKEN = 'ISI_TOKEN_GITHUB_DI_SINI';
+
+    const GITHUB_API_BASE =
+        `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`;
+
+    let githubFileSha = null; // SHA terakhir keuangan.csv di GitHub
+
+    /***********************
+     *  APLIKASI KEUANGAN  *
+     ***********************/
+    let transactions = JSON.parse(localStorage.getItem('financeTransactions')) || [];
+    let selectedType = 'masuk';
+
+    const saldoDisplay = document.getElementById('saldoDisplay');
+    const transactionBody = document.getElementById('transactionBody');
+    const emptyMessage = document.getElementById('emptyMessage');
+    const amountInput = document.getElementById('amount');
+    const tableSummary = document.getElementById('tableSummary');
+
+    const formatNumber = (amount) => {
+        if (!amount || amount === 0) return '';
+        return new Intl.NumberFormat('id-ID').format(amount);
+    };
+
+    const parseFormattedNumber = (formatted) => {
+        if (!formatted) return 0;
+        return parseInt(formatted.toString().replace(/\D/g, '')) || 0;
+    };
+
+    const formatDateShort = (dateString) => {
+        const d = new Date(dateString);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        return `${day}/${month}`;
+    };
+
+    const getDayNameId = (date) => {
+        const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        return days[date.getDay()];
+    };
+
+    const formatTodayDisplay = () => {
+        const d = new Date();
+        const dayName = getDayNameId(d);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${dayName}, ${day}/${month}/${year}`;
+    };
+
+    const calculateCurrentBalance = () => {
+        const balance = transactions.reduce((acc, t) =>
+            acc + (parseInt(t.income) || 0) - (parseInt(t.expense) || 0), 0
+        );
+
+        // saldo di header atas
+        saldoDisplay.textContent = `Saldo: ${formatNumber(balance) || 0}`;
+        saldoDisplay.classList.toggle('saldo-negatif', balance < 0);
+
+        // saldo di header tabel
+        if (tableSummary) {
+            const saldoText = balance ? formatNumber(balance) : 0;
+            const todayText = formatTodayDisplay();
+            tableSummary.textContent = `${todayText}, Saldo : ${saldoText}`;
+
+            if (balance < 0) {
+                tableSummary.style.color = '#e74c3c';
+            } else {
+                tableSummary.style.color = '#27ae60';
+            }
+        }
+
+        return balance;
+    };
+
+    const renderTransactions = () => {
+        transactionBody.innerHTML = '';
+
+        if (!transactions.length) {
+            emptyMessage.style.display = 'block';
+            return;
+        }
+
+        emptyMessage.style.display = 'none';
+
+        const sorted = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
+        let runningBalance = 0;
+
+        sorted.forEach(t => {
+            const income = parseInt(t.income) || 0;
+            const expense = parseInt(t.expense) || 0;
+            runningBalance += income - expense;
+
+            let ket = t.description || '';
+            if (ket.length > 20) ket = ket.substring(0, 20) + '...';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="tgl-col">${formatDateShort(t.date)}</td>
+                <td class="keterangan-col" title="${t.description}">${ket}</td>
+                <td class="number-col masuk-col">${income ? formatNumber(income) : ''}</td>
+                <td class="number-col keluar-col">${expense ? formatNumber(expense) : ''}</td>
+                <td class="number-col saldo-col">${formatNumber(runningBalance)}</td>
+            `;
+            transactionBody.appendChild(tr);
+        });
+    };
+
+    /**********************
+     *  NOTIFIKASI UI     *
+     **********************/
+    const showNotification = (message, type = 'success') => {
+        const notification = document.getElementById('notification');
+        const text = document.getElementById('notificationText');
+
+        text.textContent = message;
+        notification.className = 'notification';
+        if (type === 'error') notification.classList.add('error');
+        notification.classList.add('show');
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    };
+
+    /***********************
+     *   FORMAT JUMLAH     *
+     ***********************/
+    amountInput.addEventListener('input', function () {
+        const raw = this.value.replace(/\D/g, '');
+        this.value = raw ? formatNumber(parseInt(raw)) : '';
+    });
+
+    /*******************************
+     *  PILIH TIPE TRANSAKSI       *
+     *******************************/
+    document.querySelectorAll('.type-option').forEach(option => {
+        option.addEventListener('click', () => {
+            selectedType = option.getAttribute('data-type');
+            document.querySelectorAll('.type-option').forEach(o => o.classList.remove('active'));
+            option.classList.add('active');
+            amountInput.focus();
+            amountInput.select();
+        });
+    });
+
+    /*******************************
+     *   BANTUAN UNTUK GITHUB      *
+     *******************************/
+    const encodeBase64Unicode = (str) => {
+        // handle karakter non-ASCII
+        return btoa(unescape(encodeURIComponent(str)));
+    };
+
+    const decodeBase64Unicode = (str) => {
+        return decodeURIComponent(escape(atob(str)));
+    };
+
+    const transactionsToCSV = (transactionsArr) => {
+        const header = 'date,description,income,expense\n';
+        const rows = transactionsArr.map(t => {
+            const date = t.date || '';
+            const desc = (t.description || '').replace(/"/g, '""');
+            const income = t.income || 0;
+            const expense = t.expense || 0;
+            return `${date},"${desc}",${income},${expense}`;
+        });
+        return header + rows.join('\n');
+    };
+
+    const csvToTransactions = (csvText) => {
+        const lines = csvText.trim().split('\n');
+        if (lines.length <= 1) return [];
+        const rows = lines.slice(1); // skip header
+
+        const result = [];
+        const regex = /^([^,]+),"(.*)",([^,]+),([^,]+)$/;
+
+        rows.forEach(line => {
+            const match = line.match(regex);
+            if (!match) return;
+            const [, date, description, income, expense] = match;
+            result.push({
+                date,
+                description: description.replace(/""/g, '"'),
+                income: parseInt(income) || 0,
+                expense: parseInt(expense) || 0
+            });
+        });
+        return result;
+    };
+
+    /************************************
+     *   FUNGSI GET/PUT keuangan.csv    *
+     ************************************/
+
+    // Ambil keuangan.csv dari GitHub
+    const fetchFromGithub = async () => {
+        try {
+            const headers = { 'Accept': 'application/vnd.github.v3+json' };
+            if (GITHUB_TOKEN && GITHUB_TOKEN !== 'ISI_TOKEN_GITHUB_DI_SINI') {
+                headers['Authorization'] = `token ${GITHUB_TOKEN}`;
+            }
+
+            const res = await fetch(`${GITHUB_API_BASE}?ref=${GITHUB_BRANCH}`, {
+                method: 'GET',
+                headers
+            });
+
+            if (res.status === 404) {
+                // file belum ada
+                githubFileSha = null;
+                return [];
+            }
+
+            if (!res.ok) {
+                throw new Error('Response tidak OK: ' + res.status);
+            }
+
+            const data = await res.json();
+            githubFileSha = data.sha || null;
+
+            const content = data.content || '';
+            const decoded = decodeBase64Unicode(content.replace(/\n/g, ''));
+            const remoteTransactions = csvToTransactions(decoded);
+            return remoteTransactions;
+        } catch (err) {
+            console.error('Gagal ambil dari GitHub:', err);
+            showNotification('Gagal membaca keuangan.csv dari GitHub', 'error');
+            return null; // sinyal error
+        }
+    };
+
+    // Simpan transactions ke keuangan.csv di GitHub
+    const saveToGithub = async (transactionsArr) => {
+        try {
+            const csvText = transactionsToCSV(transactionsArr);
+            const encoded = encodeBase64Unicode(csvText);
+
+            const headers = {
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            };
+            if (GITHUB_TOKEN && GITHUB_TOKEN !== 'ISI_TOKEN_GITHUB_DI_SINI') {
+                headers['Authorization'] = `token ${GITHUB_TOKEN}`;
+            }
+
+            const body = {
+                message: 'Update keuangan.csv via Catatan Keuangan',
+                content: encoded,
+                branch: GITHUB_BRANCH
+            };
+            if (githubFileSha) {
+                body.sha = githubFileSha;
+            }
+
+            const res = await fetch(GITHUB_API_BASE, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify(body)
+            });
+
+            if (!res.ok) {
+                throw new Error('Response PUT tidak OK: ' + res.status);
+            }
+
+            const data = await res.json();
+            githubFileSha = data.content && data.content.sha ? data.content.sha : githubFileSha;
+        } catch (err) {
+            console.error('Gagal simpan ke GitHub:', err);
+            showNotification('Gagal menyimpan keuangan.csv ke GitHub', 'error');
+        }
+    };
+
+    // Sinkron: bandingkan lokal vs GitHub, pakai yang lebih banyak transaksi
+    const syncWithGithub = async () => {
+        const btn = document.getElementById('refreshBtn');
+        const originalText = btn.textContent;
+        btn.textContent = '...';
+        btn.disabled = true;
+
+        try {
+            const remoteTransactions = await fetchFromGithub();
+            if (remoteTransactions === null) {
+                // error sudah ditangani di fetchFromGithub
+                return;
+            }
+
+            const localCount = transactions.length;
+            const remoteCount = remoteTransactions.length;
+
+            if (remoteCount === 0 && localCount === 0) {
+                showNotification('Belum ada data di lokal maupun GitHub.');
+            } else if (remoteCount > localCount) {
+                // GitHub lebih lengkap
+                transactions = remoteTransactions;
+                localStorage.setItem('financeTransactions', JSON.stringify(transactions));
+                showNotification('Data GitHub lebih lengkap, lokal diperbarui.');
+            } else if (localCount > remoteCount) {
+                // Lokal lebih lengkap, kirim ke GitHub
+                showNotification('Data lokal lebih lengkap, memperbarui GitHub...');
+                await saveToGithub(transactions);
+            } else {
+                showNotification('Data lokal & GitHub sudah sama.');
+            }
+
+            calculateCurrentBalance();
+            renderTransactions();
+
+        } finally {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
+    };
+
+    /************************
+     *  SUBMIT FORM SIMPAN  *
+     ************************/
+    document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const date = document.getElementById('date').value;
+        const description = document.getElementById('description').value.trim();
+        const amountVal = amountInput.value;
+
+        if (!parseFormattedNumber(amountVal)) {
+            showNotification('Harap isi jumlah transaksi!', 'error');
+            amountInput.focus();
+            return;
+        }
+
+        if (!description) {
+            showNotification('Harap isi keterangan transaksi!', 'error');
+            document.getElementById('description').focus();
+            return;
+        }
+
+        if (!date) {
+            showNotification('Harap pilih tanggal transaksi!', 'error');
+            document.getElementById('date').focus();
+            return;
+        }
+
+        const amount = parseFormattedNumber(amountVal);
+        const transaction = {
+            date,
+            description,
+            income: selectedType === 'masuk' ? amount : 0,
+            expense: selectedType === 'keluar' ? amount : 0
+        };
+
+        transactions.push(transaction);
+        localStorage.setItem('financeTransactions', JSON.stringify(transactions));
+
+        // Simpan juga ke GitHub (keuangan.csv)
+        await saveToGithub(transactions);
+
+        e.target.reset();
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+        selectedType = 'masuk';
+        document.getElementById('masukOption').classList.add('active');
+        document.getElementById('keluarOption').classList.remove('active');
+        document.getElementById('description').focus();
+
+        calculateCurrentBalance();
+        renderTransactions();
+        showNotification('Transaksi berhasil disimpan!');
+    });
+
+    /****************
+     *  SCREENSHOT  *
+     ****************/
+    const captureScreenshot = () => {
+        const target = document.querySelector('.table-section');
+        const btn = document.getElementById('screenshotBtn');
+        const originalText = btn.textContent;
+
+        btn.textContent = 'Membuat...';
+        btn.disabled = true;
+
+        html2canvas(target, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            logging: false
+        }).then(canvas => {
+            const image = canvas.toDataURL('image/png');
+            const filename = `catatan_keuangan_${Date.now()}.png`;
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showNotification('Screenshot berhasil diunduh!');
+        }).catch(() => {
+            showNotification('Gagal mengambil screenshot', 'error');
+        }).finally(() => {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        });
+    };
+
+    document.getElementById('screenshotBtn').addEventListener('click', captureScreenshot);
+
+    /******************
+     *  REFRESH/SYNC  *
+     ******************/
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+        syncWithGithub();
+    });
+
+    /**************
+     *  INIT APP  *
+     **************/
+    const initApp = async () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').value = today;
+        document.getElementById('description').focus();
+
+        // Tampilkan dulu data lokal
+        calculateCurrentBalance();
+        renderTransactions();
+
+        // AUTO SYNC dengan GitHub saat halaman dibuka
+        await syncWithGithub();
+    };
+
+    window.onload = initApp;
+</script>
+</body>
+  </html>
